@@ -361,16 +361,18 @@ body::after {
 /* Balloon 1 (Top Left) */
 .top-left-balloon {
 	position: absolute;
-	top: 100px; /* Adjust starting position as needed */
-	left: 20px; /* Adjust left position */
+	top: 650px; /* Adjust starting position as needed */
+	left: 30px; /* Adjust left position */
+	scale: 2 2;
 	animation: moveUpDown 4s ease-in-out infinite;
 }
 
 /* Balloon 2 (Bottom Right) */
 .bottom-right-balloon {
 	position: absolute;
-	bottom: 150px; /*S Adjust the bottom position */
-	right: 20px; /* Adjust the right position */
+	top: 150px; /*S Adjust the bottom position */
+	right: 15px; /* Adjust the right position */
+	scale: 1.5 1.5;
 	animation: moveUpDown 4s ease-in-out infinite;
 }
 

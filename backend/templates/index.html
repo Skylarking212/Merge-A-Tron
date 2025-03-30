@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Extractor</title>
+</head>
+<body>
+    <h2>Upload Your Resume</h2>
+    <input type="file" id="resumeFile">
+    <button onclick="uploadResume()">Upload</button>
+
+    <h3>Extracted Text:</h3>
+    <pre id="output"></pre>
+
+    <script>
+        function uploadResume() {
+            let fileInput = document.getElementById("resumeFile");
+            let file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("output").textContent = "Error: " + data.error;
+                } else {
+                    // Access the text from the nested structure
+                    document.getElementById("output").textContent = data.extracted_info.response;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

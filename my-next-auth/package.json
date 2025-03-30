@@ -12,9 +12,11 @@
     "@google/generative-ai": "^0.24.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.49.4",
+    "gemini-ai": "^2.2.1",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "supabase": "^2.20.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

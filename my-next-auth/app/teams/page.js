@@ -385,77 +385,12 @@ export default function TeamsPage() {
 
       {/* Invite Users Modal */}
       {showInviteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          {showInviteModal && (
-            <InvitationsHandler
-              teamId={currentTeamId}
-              teamName={currentTeamName}
-              onClose={() => setShowInviteModal(false)}
-            />
-          )}
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-red-800">Invite Users to {currentTeamName}</h2>
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-4 overflow-y-auto flex-grow">
-              {isLoadingUsers ? (
-                <div className="flex justify-center py-10">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-800"></div>
-                </div>
-              ) : availableUsers.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
-                  {availableUsers.map(user => (
-                    <div key={user.user_id} className="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
-                      <div className="flex-grow">
-                        <h3 className="font-semibold">{user.first_name} {user.last_name}</h3>
-                        <p className="text-sm text-gray-600">{user.academic_level || 'No academic level set'}</p>
-
-                        {/* Show top 3 skills if available */}
-                        {userSkills[user.user_id] && userSkills[user.user_id].length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-500 mb-1">Top Skills:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {userSkills[user.user_id].map((skill, idx) => (
-                                <span
-                                  key={idx}
-                                  className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
-                                >
-                                  {skill.name} ({skill.level}/10)
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {user.description && (
-                          <p className="text-sm mt-2 text-gray-700 line-clamp-2">{user.description}</p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => handleInviteUser(user.user_id)}
-                        className="ml-4 px-3 py-1 bg-red-800 text-white rounded hover:bg-red-700 flex-shrink-0"
-                      >
-                        Invite
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-10">
-                  <p className="text-gray-600">No users available to invite.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+  <InvitationsHandler
+    teamId={currentTeamId}
+    teamName={currentTeamName}
+    onClose={() => setShowInviteModal(false)}
+  />
+)}
     </div>
   );
 }

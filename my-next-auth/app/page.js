@@ -277,8 +277,7 @@ export default function Home() {
 								<li>
 									All participants must be at least 18 years
 									old and a student of some university (or a
-									recent graduate within one
-									year).
+									recent graduate within one year).
 								</li>
 								<li>
 									Teams may be comprised of up to five
@@ -286,8 +285,7 @@ export default function Home() {
 								</li>
 								<li>
 									Projects should be original works created on
-									site. Do not work on an existing
-									project.
+									site. Do not work on an existing project.
 								</li>
 								<li>
 									All projects must be submitted through
@@ -742,6 +740,19 @@ export default function Home() {
 				backgroundPosition: "top left",
 			}}
 		>
+			<div className="ballon-container">
+				<img
+					src="/images/ballon.png"
+					className="balloon moving-image top-left-balloon"
+					alt="Balloon 1"
+				/>
+				<img
+					src="/images/ballon.png"
+					className="balloon moving-image bottom-right-balloon"
+					alt="Balloon 2"
+				/>
+			</div>
+
 			{/* Gradient overlay */}
 			<div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-indigo-900/80 to-slate-900/90 z-0"></div>
 			<div className="relative z-10 min-h-screen">

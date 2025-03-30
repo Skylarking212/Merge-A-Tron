@@ -15,6 +15,23 @@
 	--foreground: var(--cream);
 }
 
+.image-container {
+	position: relative;
+	display: inline-block;
+}
+
+@keyframes moveUpDown {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-20px); /* Move up by 20px */
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -33,15 +50,23 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+.moving-image {
+	position: absolute;
+	animation: moveUpDown 4s ease-in-out infinite;
+	/* Add an initial position to start lower */
+	top: 100px; /* Adjust this value to control the starting point */
+}
+
 /* Animation keyframes - simplified for performance */
 @keyframes float {
 	0%,
 	100% {
-		transform: translateY(0);
+		transform: translateY(-10%);
 	}
 
 	50% {
-		transform: translateY(-5px);
+		transform: translateY(-15%);
+
 		/* Reduced movement for better performance */
 	}
 }
@@ -326,4 +351,38 @@ body::after {
 /* Ensure content is above the overlay */
 .relative.z-10 {
 	z-index: 2;
+}
+
+/* Balloon Container */
+.ballon-container {
+	position: relative;
+}
+
+/* Balloon 1 (Top Left) */
+.top-left-balloon {
+	position: absolute;
+	top: 100px; /* Adjust starting position as needed */
+	left: 20px; /* Adjust left position */
+	animation: moveUpDown 4s ease-in-out infinite;
+}
+
+/* Balloon 2 (Bottom Right) */
+.bottom-right-balloon {
+	position: absolute;
+	bottom: 150px; /*S Adjust the bottom position */
+	right: 20px; /* Adjust the right position */
+	animation: moveUpDown 4s ease-in-out infinite;
+}
+
+/* Up and down animation for both balloons */
+@keyframes moveUpDown {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-20px); /* Move up by 20px */
+	}
+	100% {
+		transform: translateY(0);
+	}
 }

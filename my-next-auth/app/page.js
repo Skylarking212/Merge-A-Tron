@@ -277,7 +277,7 @@ export default function Home() {
 								<li>
 									All participants must be at least 18 years
 									old and a student of some university (or a
-									recent PSU graduate within less than one
+									recent graduate within one
 									year).
 								</li>
 								<li>
@@ -286,14 +286,13 @@ export default function Home() {
 								</li>
 								<li>
 									Projects should be original works created on
-									site. Coming with an idea in mind is
-									perfectly fine, working on an existing
-									project is not.
+									site. Do not work on an existing
+									project.
 								</li>
 								<li>
 									All projects must be submitted through
 									Devpost by 12PM on Sunday (even if not
-									completed!) and can be edited until 1:45PM
+									completed!) and can be edited until 1:30PM
 									Sunday.
 								</li>
 								<li>
@@ -307,7 +306,7 @@ export default function Home() {
 								<li>
 									Anything you create is your work, HackPSU
 									and its partners have no claim over
-									intellectual property produced at the event.
+									intellectual property produced.
 								</li>
 								<li>
 									All participants must agree to the MLH Code

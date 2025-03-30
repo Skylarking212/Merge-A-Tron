@@ -2,7 +2,7 @@
 
 :root {
 	/* Night-time carnival theme - adjusted for slightly bluer hue */
-	--deep-night: #081029;
+	--deep-night: #021e45;
 	--midnight-blue: #0a1f40;
 	--dark-blue: #0c3156;
 	--ferris-red: #ef476f;
@@ -238,14 +238,14 @@ button.glowy:not(.header-btn):not(.faq-button):hover {
 header {
 	transition: all 0.2s ease;
 	/* Faster transition */
-	
+
 	/* Smaller by default */
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
 	background-color: rgba(8, 16, 41, 0.85);
 	/* Better performance */
 	will-change: padding, background-color;
-	height: 70px;
+	height: 60px;
 }
 
 header img {

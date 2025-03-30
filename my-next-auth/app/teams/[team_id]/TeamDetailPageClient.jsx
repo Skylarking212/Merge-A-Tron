@@ -5,6 +5,7 @@ import { supabase } from "../../../lib/supabase";
 import { useRouter } from "next/navigation";
 
 export default function TeamDetailPageClient({ team_id }) {
+	console.log("TeamDetailPageClient received team_id:", team_id);
 	const router = useRouter();
 	const [team, setTeam] = useState(null);
 	const [members, setMembers] = useState([]);

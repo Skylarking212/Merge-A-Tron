@@ -9,7 +9,7 @@
   --lantern-yellow: #ffb627;
   --lantern-glow: #ff980060;
   /* Reduced opacity for better performance */
-  --cream: #fdffb6;
+  --cream: red;
   --tent-orange: #ff8500;
   --background: var(--deep-night);
   --foreground: var(--cream);

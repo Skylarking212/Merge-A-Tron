@@ -364,7 +364,7 @@ body::after {
 	top: 650px; /* Adjust starting position as needed */
 	left: 30px; /* Adjust left position */
 	scale: 2 2;
-	animation: moveUpDown 4s ease-in-out infinite;
+	animation: moveUpDown 3s ease-in-out infinite;
 }
 
 /* Balloon 2 (Bottom Right) */

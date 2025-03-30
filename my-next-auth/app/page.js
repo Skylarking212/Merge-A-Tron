@@ -660,7 +660,17 @@ export default function Home() {
 					</div>
 				);
 			case "teams":
-				
+				return (
+					<button
+						onClick={() => {
+							// Use window.location.href to redirect to a different page
+							window.location.href = "/teams/page.js";
+						}}
+					>
+						Go to Teams Page
+					</button>
+				);
+
 			case "sponsors":
 			case "workshops":
 				return (
@@ -710,7 +720,7 @@ export default function Home() {
                     ${
 						activeTab === "teams"
 							? "bg-gradient-to-r from-indigo-600 to-blue-700"
-						: activeTab === "sponsors"
+							: activeTab === "sponsors"
 							? "bg-gradient-to-r from-purple-600 to-pink-700"
 							: "bg-gradient-to-r from-orange-600 to-red-700"
 					}

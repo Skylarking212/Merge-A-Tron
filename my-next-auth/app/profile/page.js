@@ -1,271 +1,394 @@
-	"use client";
+'use client';
 
-	import { useState, useEffect } from "react";
-	import { supabase } from "../../lib/supabase";
-	import { useRouter } from "next/navigation";
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useRouter } from 'next/navigation';
 
-	export default function TeamDetailPageClient({ team_id }) {
-		const router = useRouter();
-		const [team, setTeam] = useState(null);
-		const [members, setMembers] = useState([]);
-		const [isLoading, setIsLoading] = useState(true);
+export default function ProfilePage() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [academicLevel, setAcademicLevel] = useState('');
+    const [description, setDescription] = useState('');
+    const [resumeFile, setResumeFile] = useState(null);
+    const [extractedSkills, setExtractedSkills] = useState({
+        backend: 0,
+        frontend: 0,
+        fullstack: 0,
+        skills: []
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [message, setMessage] = useState('');
 
-		// Navigation tab component
-		const NavTab = ({ label, isActive, onClick }) => (
-			<div onClick={onClick} className="cursor-pointer">
-				<div
-					className={`bg-yellow-400 px-6 py-1 text-center font-bold border border-yellow-500 ${
-						isActive ? "bg-yellow-500" : ""
-					}`}
-				>
-					{label}
-				</div>
-			</div>
-		);
+    useEffect(() => {
+        async function getProfile() {
+            setIsLoading(true);
 
-		useEffect(() => {
-			const fetchTeamDetails = async () => {
-				try {
-					console.log("Fetching team details for team_id:", team_id);
+            // Check if user is logged in
+            const { data: { session } } = await supabase.auth.getSession();
 
-					// Fetch team details
-					const { data: teamData, error: teamError } = await supabase
-						.from("Team")
-						.select("*")
-						.eq("team_id", team_id)
-						.single();
+            if (!session) {
+                router.push('/');
+                return;
+            }
 
-					if (teamError) throw teamError;
-					console.log("Team data:", teamData);
-					setTeam(teamData);
+            setUser(session.user);
 
-					// Fetch team members
-					const { data: memberData, error: memberError } = await supabase
-						.from("Member")
-						.select(
-							`
-				member_id,
-				user_id
-			`
-						)
-						.eq("team_id", team_id);
+            // Get user profile from User table
+            const { data, error } = await supabase
+                .from('User')
+                .select('*')
+                .eq('email', session.user.email)
+                .single();
 
-					console.log(memberData);
-					if (memberError) throw memberError;
-					console.log("Member data:", memberData);
+            if (error) {
+                console.error('Error fetching profile:', error);
+            } else if (data) {
+                setFirstName(data.first_name || '');
+                setLastName(data.last_name || '');
+                setEmail(data.email || '');
+                setAcademicLevel(data.academic_level || '');
+                setDescription(data.description || '');
 
-					console.log(memberData);
-					const memberIds = memberData.map((member) => member.user_id);
+                // Fetch skills from Skills table
+                const { data: skillsData, error: skillsError } = await supabase
+                    .from('Skills')
+                    .select('*')
+                    .eq('user_id', data.user_id);
 
-					// 2. Fetch users from the User table where user_id is in the array of memberIds
-					const { data: userData, error: userError } = await supabase
-						.from("User")
-						.select("user_id, first_name, last_name, interests")
-						.in("user_id", memberIds);
+                if (skillsError) {
+                    console.error('Error fetching skills:', skillsError);
+                } else if (skillsData && skillsData.length > 0) {
+                    // Format skills data to match expected structure
+                    const formattedSkills = skillsData.map(skill => ({
+                        name: skill.skill_name,
+                        level: parseInt(skill.skill_level, 10) || 5
+                    }));
 
-					if (userError) throw userError;
+                    // TODO: Update this with actual backend/frontend/fullstack ratings
+                    // For now we'll just use placeholder values or calculate averages
+                    setExtractedSkills({
+                        backend: 7, // Placeholder
+                        frontend: 7, // Placeholder
+                        fullstack: 7, // Placeholder
+                        skills: formattedSkills
+                    });
+                }
+            }
 
-					// Format member data
+            setIsLoading(false);
+        }
 
-					console.log(userData);
-					const formattedMembers = userData.map((m) => ({
-						userId: m.user_id,
-						username: `${m.first_name} ${m.last_name}`,
-						skills: m.interests.split(","), // Assuming skills is an array
-					}));
+        getProfile();
+    }, [router]);
 
-					setMembers(formattedMembers);
-				} catch (error) {
-					console.error("Error fetching team details:", error);
+    const handleResumeChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setResumeFile(file);
+        }
+    };
 
-					// Fallback data for development
-					console.log("Setting fallback data for team_id:", team_id);
-					setTeam({
-						team_id: team_id,
-						name: `Example Team ${team_id}`,
-						description: "Example team description",
-						max_members: 5,
-					});
+    const parseResume = async () => {
+        if (!resumeFile) return;
 
-					// setMembers([
-					//   { userId: 1, username: "John Doe", skills: ["JavaScript", "React"] },
-					//   { userId: 2, username: "Jane Smith", skills: ["Python", "Data Science"] }
-					// ]);
-				} finally {
-					setIsLoading(false);
-				}
-			};
+        setIsSubmitting(true);
+        setMessage('Analyzing resume...');
 
-			if (team_id) {
-				fetchTeamDetails();
-			}
-		}, [team_id]);
+        try {
+            const formData = new FormData();
+            formData.append('resume', resumeFile);
 
-		// Render five position slots dynamically
-		const renderPositions = () => {
-			const positions = [];
-			for (let i = 0; i < 5; i++) {
-				const member = i < members.length ? members[i] : null;
-				positions.push(
-					<div key={i} className="bg-white rounded-lg p-6 shadow mb-4">
-						<h3 className="text-lg font-semibold text-red-800">
-							Position {i + 1}
-						</h3>
-						{member ? (
-							<div>
-								<p className="font-medium">{member.username}</p>
-								<p className="text-gray-600 mt-1">
-									Skills:{" "}
-									{member.skills && member.skills.length > 0
-										? member.skills.join(", ")
-										: "No skills listed"}
-								</p>
-							</div>
-						) : (
-							<div className="flex items-center justify-center p-4 text-gray-400">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									className="h-8 w-8"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M12 4v16m8-8H4"
-									/>
-								</svg>
-							</div>
-						)}
-					</div>
-				);
-			}
-			return positions;
-		};
+            const response = await fetch('/api/parse-resume', {
+                method: 'POST',
+                body: formData
+            });
 
-		if (isLoading) {
-			return (
-				<div className="min-h-screen bg-sky-300 flex justify-center items-center">
-					<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-800"></div>
-				</div>
-			);
-		}
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to parse resume');
+            }
 
-		if (!team) {
-			return (
-				<div className="min-h-screen bg-sky-300">
-					<header className="bg-red-800">
-						<nav className="container mx-auto flex justify-around px-4 py-4">
-							<NavTab label="INFO" onClick={() => router.push("/")} />
-							<NavTab
-								label="SCHEDULE"
-								onClick={() => router.push("/")}
-							/>
-							<NavTab
-								label="PRIZES"
-								onClick={() => router.push("/")}
-							/>
-							<NavTab
-								label="TEAMS"
-								isActive={true}
-								onClick={() => router.push("/teams")}
-							/>
-							<NavTab
-								label="SPONSORS"
-								onClick={() => router.push("/")}
-							/>
-							<NavTab
-								label="WORKSHOPS"
-								onClick={() => router.push("/")}
-							/>
-							<NavTab
-								label="PROFILE"
-								onClick={() => router.push("/")}
-							/>
-						</nav>
-					</header>
-					<main className="container mx-auto px-4 py-10">
-						<div className="bg-white rounded-xl p-8 shadow-lg mb-8">
-							<h1 className="text-3xl font-bold text-red-800 mb-4">
-								Error Loading Team
-							</h1>
-							<p>Could not load team details. Team ID: {team_id}</p>
-							<button
-								onClick={() => router.push("/teams")}
-								className="mt-4 px-4 py-2 bg-red-800 text-white rounded-md hover:bg-red-700"
-							>
-								Back to Teams
-							</button>
-						</div>
-					</main>
-				</div>
-			);
-		}
+            const data = await response.json();
+            console.log("API Response:", data); // Debug log
 
-		return (
-			<div className="min-h-screen bg-sky-300">
-				{/* Header with navigation */}
-				<header className="bg-red-800">
-					<nav className="container mx-auto flex justify-around px-4 py-4">
-						<NavTab label="INFO" onClick={() => router.push("/")} />
-						<NavTab label="SCHEDULE" onClick={() => router.push("/")} />
-						<NavTab label="PRIZES" onClick={() => router.push("/")} />
-						<NavTab
-							label="TEAMS"
-							isActive={true}
-							onClick={() => router.push("/teams")}
-						/>
-						<NavTab label="SPONSORS" onClick={() => router.push("/")} />
-						<NavTab
-							label="WORKSHOPS"
-							onClick={() => router.push("/")}
-						/>
-						<NavTab label="PROFILE" onClick={() => router.push("/")} />
-					</nav>
-				</header>
+            setExtractedSkills(data);
+            setMessage('Resume analyzed successfully! Skills have been rated.');
+        } catch (error) {
+            console.error('Error parsing resume:', error);
+            setMessage('Error analyzing resume. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-				{/* Main Content */}
-				<main className="container mx-auto px-4 py-10">
-					<div className="mb-6">
-						<button
-							onClick={() => router.push("/teams")}
-							className="flex items-center text-red-800 font-medium"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								className="h-5 w-5 mr-1"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
-								<path
-									fillRule="evenodd"
-									d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							Back to Teams
-						</button>
-					</div>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setMessage('');
 
-					<div className="bg-white rounded-xl p-8 shadow-lg mb-8">
-						<h1 className="text-3xl font-bold text-red-800 mb-2">
-							{team?.name || "Team"}
-						</h1>
-						<p className="text-gray-600">
-							{team?.description || "No description available"}
-						</p>
-						<p className="mt-2 text-sm text-gray-500">
-							Team ID: {team_id}
-						</p>
-					</div>
+        try {
+            if (!user || !user.id) {
+                throw new Error('User session not found');
+            }
 
-					<h2 className="text-2xl font-bold text-red-800 mb-6">
-						Team Members
-					</h2>
-					<div className="space-y-4">{renderPositions()}</div>
-				</main>
-			</div>
-		);
-	}
+            // Get user_id from User table based on email
+            const { data: userData, error: userError } = await supabase
+                .from('User')
+                .select('user_id')
+                .eq('email', email)
+                .single();
+
+            if (userError) throw userError;
+            if (!userData || !userData.user_id) throw new Error('User ID not found');
+
+            const userId = userData.user_id;
+
+            // Update profile in User table
+            const { error } = await supabase
+                .from('User')
+                .update({
+                    first_name: firstName,
+                    last_name: lastName,
+                    academic_level: academicLevel,
+                    description: description
+                })
+                .eq('email', email);
+
+            if (error) throw error;
+
+            // If we have extracted skills, save them to Skills table
+            if (extractedSkills.skills && extractedSkills.skills.length > 0) {
+                // First, delete any existing skills for this user
+                const { error: deleteError } = await supabase
+                    .from('Skills')
+                    .delete()
+                    .eq('user_id', userId);
+
+                if (deleteError) {
+                    console.error('Error deleting existing skills:', deleteError);
+                }
+
+                // Then insert new skills
+                const skillsToInsert = extractedSkills.skills.map(skill => ({
+                    user_id: userId,
+                    skill_name: skill.name,
+                    skill_level: String(skill.level)
+                }));
+
+                if (skillsToInsert.length > 0) {
+                    const { error: skillsError } = await supabase
+                        .from('Skills')
+                        .insert(skillsToInsert);
+
+                    if (skillsError) {
+                        console.error('Error inserting skills:', skillsError);
+                        throw skillsError;
+                    }
+                }
+            }
+
+            setMessage('Profile updated successfully!');
+
+            // Add a short delay so the user can see the success message before redirecting
+            setTimeout(() => {
+                router.push('/'); // Navigate back to home page
+            }, 1500);
+
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            setMessage('Error updating profile. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-900/80 via-indigo-900/80 to-slate-900/90 flex items-center justify-center">
+                <div className="text-white text-2xl">Loading profile...</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat relative">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-indigo-900/80 to-slate-900/90 z-0"></div>
+            <div className="relative z-10 min-h-screen pt-24 pb-16 px-4">
+                <div className="max-w-3xl mx-auto">
+                    <div className="bg-gradient-to-b from-slate-800/90 to-slate-900/90 p-8 rounded-2xl shadow-lg border border-slate-700/50 backdrop-blur-sm">
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+                            Your Profile
+                        </h1>
+
+                        {message && (
+                            <div className={`p-4 mb-6 rounded-lg ${message.includes('Error') ? 'bg-red-900/50 text-red-200' : 'bg-green-900/50 text-green-200'}`}>
+                                {message}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="block text-blue-100 font-medium">First Name</label>
+                                    <input
+                                        type="text"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-blue-100 font-medium">Last Name</label>
+                                    <input
+                                        type="text"
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-blue-100 font-medium">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-slate-300"
+                                    disabled
+                                />
+                                <p className="text-slate-400 text-sm">Email cannot be changed</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-blue-100 font-medium">Academic Level</label>
+                                <select
+                                    value={academicLevel}
+                                    onChange={(e) => setAcademicLevel(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                >
+                                    <option value="">Select your academic level</option>
+                                    <option value="Freshman">Freshman</option>
+                                    <option value="Sophomore">Sophomore</option>
+                                    <option value="Junior">Junior</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Graduate">Graduate Student</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-blue-100 font-medium">About You</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    rows={4}
+                                    className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                    placeholder="Tell others about yourself, your skills, and what you're looking to work on..."
+                                ></textarea>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-blue-100 font-medium">Upload Resume for Skill Analysis</label>
+                                <div className="flex flex-col space-y-3">
+                                    <input
+                                        type="file"
+                                        onChange={handleResumeChange}
+                                        accept=".pdf,.doc,.docx"
+                                        className="hidden"
+                                        id="resume-upload"
+                                    />
+                                    <label
+                                        htmlFor="resume-upload"
+                                        className="cursor-pointer py-3 px-4 bg-slate-800 border border-slate-600 border-dashed rounded-lg text-center text-blue-300 hover:bg-slate-700 transition-colors"
+                                    >
+                                        Click to upload resume (PDF, DOC, DOCX)
+                                    </label>
+
+                                    {resumeFile && (
+                                        <div className="text-green-300">
+                                            Selected: {resumeFile.name}
+                                            <button
+                                                type="button"
+                                                onClick={parseResume}
+                                                disabled={isSubmitting}
+                                                className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-70"
+                                            >
+                                                {isSubmitting ? 'Analyzing...' : 'Analyze Resume'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Debug - Raw Skills Data */}
+                            <div className="mt-4 p-4 bg-slate-800/70 rounded-lg">
+                                <h3 className="text-white text-lg font-medium">Debug - Raw Skills Data:</h3>
+                                <pre className="text-xs text-gray-300 mt-2 overflow-auto">
+                                    {JSON.stringify(extractedSkills, null, 2)}
+                                </pre>
+                            </div>
+
+                            {extractedSkills.skills && extractedSkills.skills.length > 0 && (
+                                <div className="space-y-4">
+                                    <label className="block text-blue-100 font-medium text-xl">Your Skills Analysis</label>
+
+                                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 space-y-4">
+                                        <div className="space-y-2">
+                                            <h3 className="text-lg font-medium text-blue-300">Development Areas</h3>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="bg-slate-700/50 p-4 rounded-lg text-center">
+                                                    <div className="text-sm text-blue-200 mb-1">Backend</div>
+                                                    <div className="text-2xl font-bold text-white">{extractedSkills.backend}/10</div>
+                                                </div>
+                                                <div className="bg-slate-700/50 p-4 rounded-lg text-center">
+                                                    <div className="text-sm text-blue-200 mb-1">Frontend</div>
+                                                    <div className="text-2xl font-bold text-white">{extractedSkills.frontend}/10</div>
+                                                </div>
+                                                <div className="bg-slate-700/50 p-4 rounded-lg text-center">
+                                                    <div className="text-sm text-blue-200 mb-1">Fullstack</div>
+                                                    <div className="text-2xl font-bold text-white">{extractedSkills.fullstack}/10</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <h3 className="text-lg font-medium text-blue-300">Individual Skills</h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {extractedSkills.skills.map((skill, index) => (
+                                                    <div key={index} className="flex items-center justify-between bg-slate-700/30 p-3 rounded">
+                                                        <span className="text-blue-200">{skill.name}</span>
+                                                        <span className="bg-blue-600 px-2 py-1 rounded text-xs text-white">
+                                                            {skill.level}/10
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-800 transition-all shadow-md font-medium disabled:opacity-70"
+                                >
+                                    {isSubmitting ? 'Updating...' : 'Update Profile'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

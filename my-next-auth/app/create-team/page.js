@@ -18,7 +18,7 @@ export default function CreateTeamPage() {
     // Navigation tab component
     const NavTab = ({ label, isActive, onClick }) => (
         <div onClick={onClick} className="cursor-pointer">
-            <div className={`bg-yellow-400 px-6 py-1 text-center font-bold border border-yellow-500 ${isActive ? 'bg-yellow-500' : ''}`}>
+            <div className={`bg-blue-800 px-6 py-1 text-center font-bold border border-blue-500 ${isActive ? 'bg-blue-800' : ''}`}>
                 {label}
             </div>
         </div>
@@ -204,9 +204,9 @@ export default function CreateTeamPage() {
     };
 
     return (
-        <div className="min-h-screen bg-sky-300">
+        <div className="min-h-screen bg-black">
             {/* Header with navigation */}
-            <header className="bg-red-800">
+            <header className="bg-red-400">
                 <nav className="container mx-auto flex justify-around px-4 py-4">
                     <NavTab label="INFO" onClick={() => router.push('/')} />
                     <NavTab label="SCHEDULE" onClick={() => router.push('/')} />
@@ -221,7 +221,7 @@ export default function CreateTeamPage() {
             {/* Main Content */}
             <main className="container mx-auto px-4 py-10">
                 <div className="max-w-2xl mx-auto">
-                    <h1 className="text-4xl font-bold text-red-800 mb-6">Create a Team</h1>
+                    <h1 className="text-4xl font-bold text-red-500 mb-6">Create a Team</h1>
 
                     <div className="bg-white rounded-xl p-8 shadow-lg">
                         <form onSubmit={handleSubmit}>

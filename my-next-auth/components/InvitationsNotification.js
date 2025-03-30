@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase'; // Changed from ../../lib/supabase
+import { supabase } from '../lib/supabase';
 
-export default function RequestNotification() {
-    const [pendingRequests, setPendingRequests] = useState([]);
+export default function InvitationsNotification() {
+    const [pendingInvitations, setPendingInvitations] = useState([]);
     const [isOpen, setIsOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchRequests = async () => {
+        const fetchInvitations = async () => {
             const { data: session } = await supabase.auth.getSession();
 
             if (session && session.session) {
@@ -25,67 +25,67 @@ export default function RequestNotification() {
                     return;
                 }
 
-                // Get pending requests for teams you own
-                const { data: requests, error: requestError } = await supabase
+                // Get pending invitations for the current user
+                const { data: invitations, error: invitationError } = await supabase
                     .from('Requests')
                     .select(`
-            request_id,
-            team_id,
-            requester_id,
-            status,
-            created_at,
-            Team(name),
-            User!requester_id(first_name, last_name, email)
-          `)
-                    .eq('owner_id', userData.user_id)
+                        request_id,
+                        team_id,
+                        owner_id,
+                        status,
+                        created_at,
+                        Team(name),
+                        User!owner_id(first_name, last_name, email)
+                    `)
+                    .eq('requester_id', userData.user_id)
                     .eq('status', 'pending');
 
-                if (requestError) {
-                    console.error("Error fetching requests:", requestError);
+                if (invitationError) {
+                    console.error("Error fetching invitations:", invitationError);
                 } else {
-                    setPendingRequests(requests || []);
+                    setPendingInvitations(invitations || []);
                 }
             }
 
             setIsLoading(false);
         };
 
-        fetchRequests();
+        fetchInvitations();
 
-        // Set up real-time subscription for new requests
-        const requestsSubscription = supabase
-            .channel('requests_changes')
+        // Set up real-time subscription for new invitations
+        const invitationsSubscription = supabase
+            .channel('invitations_changes')
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
                 table: 'Requests',
                 filter: 'status=eq.pending'
             }, (payload) => {
-                fetchRequests();
+                fetchInvitations();
             })
             .subscribe();
 
         return () => {
-            requestsSubscription.unsubscribe();
+            invitationsSubscription.unsubscribe();
         };
     }, []);
 
     const handleAction = async (requestId, accept) => {
         try {
             if (accept) {
-                // Accept request
+                // Accept invitation
                 const { data: request, error: fetchError } = await supabase
                     .from('Requests')
-                    .select('team_id, requester_id')
+                    .select('team_id')
                     .eq('request_id', requestId)
                     .single();
 
                 if (fetchError) {
-                    console.error("Error fetching request:", fetchError);
+                    console.error("Error fetching invitation:", fetchError);
                     throw fetchError;
                 }
 
-                console.log("Request to accept:", request);
+                console.log("Invitation to accept:", request);
 
                 // Update request status
                 const { error: updateError } = await supabase
@@ -94,7 +94,7 @@ export default function RequestNotification() {
                     .eq('request_id', requestId);
 
                 if (updateError) {
-                    console.error("Error updating request status:", updateError);
+                    console.error("Error updating invitation status:", updateError);
                     throw updateError;
                 }
 
@@ -114,13 +114,24 @@ export default function RequestNotification() {
                 }
 
                 const event = eventData[0];
-                console.log("Found event:", event);
+
+                // Get current user id
+                const { data: session } = await supabase.auth.getSession();
+                const { data: userData, error: userError } = await supabase
+                    .from('User')
+                    .select('user_id')
+                    .eq('email', session.session.user.email)
+                    .single();
+
+                if (userError || !userData) {
+                    throw new Error("User not found");
+                }
 
                 // Add user to team as member
                 const { error: memberError } = await supabase
                     .from('Member')
                     .insert([{
-                        user_id: request.requester_id,
+                        user_id: userData.user_id,
                         team_id: request.team_id,
                         event_id: event.event_id,
                         wants_team: false
@@ -131,7 +142,7 @@ export default function RequestNotification() {
                     throw memberError;
                 }
 
-                // Manually increment the team's member count instead of using RPC
+                // Increment the team's member count
                 const { data: teamData, error: teamFetchError } = await supabase
                     .from('Team')
                     .select('current_member_count')
@@ -155,59 +166,59 @@ export default function RequestNotification() {
                     throw teamUpdateError;
                 }
 
-                console.log("Successfully accepted request");
+                console.log("Successfully accepted invitation");
             } else {
-                // Reject request
+                // Reject invitation
                 const { error } = await supabase
                     .from('Requests')
                     .update({ status: 'rejected', updated_at: new Date().toISOString() })
                     .eq('request_id', requestId);
 
                 if (error) {
-                    console.error("Error rejecting request:", error);
+                    console.error("Error rejecting invitation:", error);
                     throw error;
                 }
 
-                console.log("Successfully rejected request");
+                console.log("Successfully rejected invitation");
             }
 
             // Remove from UI
-            setPendingRequests(prev => prev.filter(r => r.request_id !== requestId));
+            setPendingInvitations(prev => prev.filter(r => r.request_id !== requestId));
         } catch (error) {
-            console.error("Error handling request:", error);
-            alert("Failed to process request. Please try again.");
+            console.error("Error handling invitation:", error);
+            alert("Failed to process invitation. Please try again.");
         }
     };
 
-    if (isLoading || pendingRequests.length === 0) {
+    if (isLoading || pendingInvitations.length === 0) {
         return null;
     }
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 w-80 shadow-lg bg-white rounded-lg overflow-hidden">
+        <div className="fixed bottom-4 left-4 z-50 w-80 shadow-lg bg-white rounded-lg overflow-hidden">
             <div
                 className="bg-red-800 text-white p-3 cursor-pointer flex justify-between items-center"
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <h3 className="font-bold">Join Requests ({pendingRequests.length})</h3>
+                <h3 className="font-bold">Team Invitations ({pendingInvitations.length})</h3>
                 <span>{isOpen ? '▼' : '▲'}</span>
             </div>
 
             {isOpen && (
                 <div className="max-h-80 overflow-y-auto">
-                    {pendingRequests.map(request => (
-                        <div key={request.request_id} className="p-4 border-b">
-                            <p className="font-medium">{request.User.first_name} {request.User.last_name}</p>
-                            <p className="text-sm text-gray-600">wants to join {request.Team.name}</p>
+                    {pendingInvitations.map(invitation => (
+                        <div key={invitation.request_id} className="p-4 border-b">
+                            <p className="font-medium">{invitation.User.first_name} {invitation.User.last_name}</p>
+                            <p className="text-sm text-gray-600">invites you to join {invitation.Team.name}</p>
                             <div className="mt-2 flex justify-end space-x-2">
                                 <button
-                                    onClick={() => handleAction(request.request_id, false)}
+                                    onClick={() => handleAction(invitation.request_id, false)}
                                     className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                                 >
-                                    Reject
+                                    Decline
                                 </button>
                                 <button
-                                    onClick={() => handleAction(request.request_id, true)}
+                                    onClick={() => handleAction(invitation.request_id, true)}
                                     className="px-3 py-1 bg-red-800 text-white rounded hover:bg-red-700"
                                 >
                                     Accept

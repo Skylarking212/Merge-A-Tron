@@ -1,390 +1,285 @@
 @import "tailwindcss";
 
 :root {
-	/* Night-time carnival theme - adjusted for slightly bluer hue */
-	--deep-night: #021e45;
-	--midnight-blue: #0a1f40;
-	--dark-blue: #0c3156;
-	--ferris-red: #ef476f;
-	--lantern-yellow: #ffb627;
-	--lantern-glow: #ff980060;
-	/* Reduced opacity for better performance */
-	--cream: #fdffb6;
-	--tent-orange: #ff8500;
-	--background: var(--deep-night);
-	--foreground: var(--cream);
-}
-
-.image-container {
-	position: relative;
-	display: inline-block;
-}
-
-@keyframes moveUpDown {
-	0% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-20px); /* Move up by 20px */
-	}
-	100% {
-		transform: translateY(0);
-	}
+  /* Night-time carnival theme - adjusted for slightly bluer hue */
+  --deep-night: #081029;
+  --midnight-blue: #0a1f40;
+  --dark-blue: #0c3156;
+  --ferris-red: #ef476f;
+  --lantern-yellow: #ffb627;
+  --lantern-glow: #ff980060;
+  /* Reduced opacity for better performance */
+  --cream: #fdffb6;
+  --tent-orange: #ff8500;
+  --background: var(--deep-night);
+  --foreground: var(--cream);
 }
 
 @theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: "Inter", sans-serif;
-	/* Improve overall performance by using hardware acceleration */
-	transform: translateZ(0);
-	backface-visibility: hidden;
-	perspective: 1000;
-	-webkit-font-smoothing: antialiased;
-}
-
-.moving-image {
-	position: absolute;
-	animation: moveUpDown 4s ease-in-out infinite;
-	/* Add an initial position to start lower */
-	top: 100px; /* Adjust this value to control the starting point */
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  /* Improve overall performance by using hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Animation keyframes - simplified for performance */
 @keyframes float {
-	0%,
-	100% {
-		transform: translateY(-10%);
-	}
 
-	50% {
-		transform: translateY(-15%);
+  0%,
+  100% {
+    transform: translateY(0);
+  }
 
-		/* Reduced movement for better performance */
-	}
+  50% {
+    transform: translateY(-5px);
+    /* Reduced movement for better performance */
+  }
 }
 
 @keyframes pulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
 
-	50% {
-		opacity: 0.8;
-	}
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .animate-float {
-	animation: float 4s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 .animate-float-delay {
-	animation: float 6s ease-in-out infinite;
+  animation: float 6s ease-in-out infinite;
 }
 
 .animate-float-slow {
-	animation: float 8s ease-in-out infinite;
+  animation: float 8s ease-in-out infinite;
 }
 
 .animate-pulse-slow {
-	animation: pulse 3s ease-in-out infinite;
+  animation: pulse 3s ease-in-out infinite;
 }
 
 /* Fixed background image scaling */
 [style*="backgroundImage"] {
-	background-size: cover !important;
-	background-position: center center !important;
-	background-repeat: no-repeat !important;
-	/* Add a blue tint overlay */
-	background-color: rgba(10, 31, 64, 0.3) !important;
-	background-blend-mode: overlay !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  /* Add a blue tint overlay */
+  background-color: rgba(10, 31, 64, 0.3) !important;
+  background-blend-mode: overlay !important;
 }
 
 /* Carnival theme styling */
 .bg-gradient-to-br.from-blue-900\/80 {
-	background-image: linear-gradient(
-		to bottom right,
-		var(--midnight-blue) / 0.8,
-		var(--deep-night) / 0.9
-	);
+  background-image: linear-gradient(to bottom right, var(--midnight-blue)/0.8, var(--deep-night)/0.9);
 }
 
 .bg-gradient-to-r.from-indigo-600.via-blue-600.to-purple-700,
 .bg-gradient-to-r.from-blue-600.to-indigo-700 {
-	background-image: linear-gradient(
-		to right,
-		var(--dark-blue),
-		var(--midnight-blue)
-	);
-	border: 1px solid rgba(255, 182, 39, 0.2);
+  background-image: linear-gradient(to right, var(--dark-blue), var(--midnight-blue));
+  border: 1px solid rgba(255, 182, 39, 0.2);
 }
 
 .bg-gradient-to-b.from-slate-800\/90.to-slate-900\/90 {
-	background-image: linear-gradient(
-		to bottom,
-		var(--midnight-blue) / 0.9,
-		var(--deep-night) / 0.95
-	);
-	backdrop-filter: blur(10px);
+  background-image: linear-gradient(to bottom, var(--midnight-blue)/0.9, var(--deep-night)/0.95);
+  backdrop-filter: blur(10px);
 }
 
 .bg-gradient-to-r.from-blue-400.to-purple-400 {
-	background-image: linear-gradient(to right, #911b0b, #77170a);
-	background-clip: text;
+  background-image: linear-gradient(to right, var(--lantern-yellow), var(--tent-orange));
+  background-clip: text;
 }
 
 .bg-gradient-to-r.from-indigo-400.to-purple-400 {
-	background-image: linear-gradient(
-		to right,
-		var(--lantern-yellow),
-		var(--tent-orange)
-	);
-	background-clip: text;
+  background-image: linear-gradient(to right, var(--lantern-yellow), var(--tent-orange));
+  background-clip: text;
 }
 
 .bg-gradient-to-r.from-indigo-600.to-purple-600,
 .bg-gradient-to-r.from-pink-600.to-purple-700 {
-	background-image: linear-gradient(
-		to right,
-		var(--tent-orange),
-		var(--ferris-red)
-	);
+  background-image: linear-gradient(to right, var(--tent-orange), var(--ferris-red));
 }
 
 .bg-gradient-to-r.from-purple-600.to-pink-600 {
-	background-image: linear-gradient(
-		to right,
-		var(--ferris-red),
-		var(--tent-orange)
-	);
+  background-image: linear-gradient(to right, var(--ferris-red), var(--tent-orange));
 }
 
 .bg-gradient-to-r.from-yellow-500.to-amber-600 {
-	background-image: linear-gradient(
-		to right,
-		var(--lantern-yellow),
-		var(--tent-orange)
-	);
+  background-image: linear-gradient(to right, var(--lantern-yellow), var(--tent-orange));
 }
 
 .bg-gradient-to-r.from-blue-600.to-cyan-500 {
-	background-image: linear-gradient(
-		to right,
-		var(--dark-blue),
-		var(--midnight-blue)
-	);
+  background-image: linear-gradient(to right, var(--dark-blue), var(--midnight-blue));
 }
 
 .bg-gradient-to-r.from-green-600.to-emerald-500 {
-	background-image: linear-gradient(
-		to right,
-		var(--tent-orange),
-		var(--ferris-red)
-	);
+  background-image: linear-gradient(to right, var(--tent-orange), var(--ferris-red));
 }
 
 /* Text colors */
 .text-blue-100 {
-	color: var(--cream);
+  color: var(--cream);
 }
 
 .text-blue-200,
 .text-blue-300 {
-	color: var(--lantern-yellow);
+  color: var(--lantern-yellow);
 }
 
 .text-yellow-300,
 .text-yellow-200 {
-	color: var(--lantern-yellow);
+  color: var(--lantern-yellow);
 }
 
 button {
-	position: relative;
-	transition: all 0.2s ease;
-	/* Faster transition for better responsiveness */
+  position: relative;
+  transition: all 0.2s ease;
+  /* Faster transition for better responsiveness */
 }
 
 /* Apply glow only on buttons with the "glowy" class, excluding header and FAQ buttons */
 button.glowy:not(.header-btn):not(.faq-button) {
-	box-shadow: 0 0 10px 2px var(--lantern-glow);
+  box-shadow: 0 0 10px 2px var(--lantern-glow);
 }
 
 button.glowy:not(.header-btn):not(.faq-button):hover {
-	box-shadow: 0 0 15px 5px var(--lantern-glow);
-	transform: translateY(-2px);
+  box-shadow: 0 0 15px 5px var(--lantern-glow);
+  transform: translateY(-2px);
 }
 
 /* Removed the :before pseudo-element that was causing text issues */
 
 .faq-button {
-	/* Remove default automatic glow by excluding it from the default rule */
-	box-shadow: 0 0 15px 4px var(--lantern-glow);
-	border-radius: 0.5rem;
-	padding: 0.5rem 1rem;
-	transition: box-shadow 0.2s ease;
+  /* Remove default automatic glow by excluding it from the default rule */
+  box-shadow: 0 0 15px 4px var(--lantern-glow);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: box-shadow 0.2s ease;
 }
 
 .faq-button:hover {
-	box-shadow: 0 0 20px 6px var(--lantern-glow);
+  box-shadow: 0 0 20px 6px var(--lantern-glow);
 }
 
 /* Star background */
 .stars {
-	background-image: radial-gradient(
-			2px 2px at 20px 30px,
-			var(--lantern-yellow),
-			rgba(0, 0, 0, 0)
-		),
-		radial-gradient(2px 2px at 40px 70px, var(--cream), rgba(0, 0, 0, 0)),
-		radial-gradient(
-			2px 2px at 50px 160px,
-			var(--lantern-yellow),
-			rgba(0, 0, 0, 0)
-		),
-		radial-gradient(2px 2px at 90px 40px, var(--cream), rgba(0, 0, 0, 0)),
-		radial-gradient(
-			2px 2px at 130px 80px,
-			var(--lantern-yellow),
-			rgba(0, 0, 0, 0)
-		),
-		radial-gradient(2px 2px at 160px 120px, var(--cream), rgba(0, 0, 0, 0));
-	opacity: 0.7;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, var(--lantern-yellow), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 40px 70px, var(--cream), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 50px 160px, var(--lantern-yellow), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 40px, var(--cream), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 130px 80px, var(--lantern-yellow), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 160px 120px, var(--cream), rgba(0, 0, 0, 0));
+  opacity: 0.7;
 }
 
 /* Header shrink effect - made smaller and more responsive */
 header {
-	transition: all 0.2s ease;
-	/* Faster transition */
-
-	/* Smaller by default */
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	background-color: rgba(8, 16, 41, 0.85);
-	/* Better performance */
-	will-change: padding, background-color;
-	height: 60px;
+  transition: all 0.2s ease;
+  /* Faster transition */
+  padding: 0.5rem 0;
+  /* Smaller by default */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(8, 16, 41, 0.85);
+  /* Better performance */
+  will-change: padding, background-color;
+  height: 120px;
 }
 
 header img {
-	height: 3rem !important;
-	/* Smaller logo by default */
-	transition: height 0.2s ease;
+  height: 3rem !important;
+  /* Smaller logo by default */
+  transition: height 0.2s ease;
 }
 
 .header-scrolled {
-	padding: 0.25rem 0;
-	background-color: rgba(8, 16, 41, 0.95);
-	box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.5);
+  padding: 0.25rem 0;
+  background-color: rgba(8, 16, 41, 0.95);
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.5);
 }
 
 .header-scrolled img {
-	height: 2.25rem !important;
+  height: 2.25rem !important;
 }
 
 .header-scrolled nav {
-	padding-top: 0.2rem;
-	padding-bottom: 0.2rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
 }
 
 /* Glass morphism effects - optimized for performance */
 .backdrop-blur-sm {
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .backdrop-blur-md {
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Responsive elements */
 @media (max-width: 768px) {
-	header nav button {
-		font-size: 0.75rem;
-		padding: 0.4rem 0.8rem;
-	}
+  header nav button {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
 
-	.header-scrolled img {
-		height: 2rem !important;
-	}
+  .header-scrolled img {
+    height: 2rem !important;
+  }
 }
 
 /* Performance optimizations */
 * {
-	/* Reduce repaints */
-	will-change: transform, opacity;
-	/* Use hardware acceleration for all elements */
-	transform: translateZ(0);
+  /* Reduce repaints */
+  will-change: transform, opacity;
+  /* Use hardware acceleration for all elements */
+  transform: translateZ(0);
 }
 
 /* Reduce animation workload on mobile */
 @media (max-width: 768px) {
-	.animate-float,
-	.animate-float-delay,
-	.animate-float-slow,
-	.animate-pulse-slow {
-		animation: none;
-	}
+
+  .animate-float,
+  .animate-float-delay,
+  .animate-float-slow,
+  .animate-pulse-slow {
+    animation: none;
+  }
 }
 
 /* Add a subtle blue overlay to the whole page */
 body::after {
-	content: "";
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(8, 16, 41, 0.2);
-	pointer-events: none;
-	z-index: 1;
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(8, 16, 41, 0.2);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Ensure content is above the overlay */
 .relative.z-10 {
-	z-index: 2;
-}
-
-/* Balloon Container */
-.ballon-container {
-	position: relative;
-}
-
-/* Balloon 1 (Top Left) */
-.top-left-balloon {
-	position: absolute;
-	top: 650px; /* Adjust starting position as needed */
-	left: 30px; /* Adjust left position */
-	scale: 2 2;
-	animation: moveUpDown 3s ease-in-out infinite;
-}
-
-/* Balloon 2 (Bottom Right) */
-.bottom-right-balloon {
-	position: absolute;
-	top: 150px; /*S Adjust the bottom position */
-	right: 15px; /* Adjust the right position */
-	scale: 1.5 1.5;
-	animation: moveUpDown 4s ease-in-out infinite;
-}
-
-/* Up and down animation for both balloons */
-@keyframes moveUpDown {
-	0% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-20px); /* Move up by 20px */
-	}
-	100% {
-		transform: translateY(0);
-	}
+  z-index: 2;
 }
